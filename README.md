@@ -23,6 +23,8 @@ o-tmux [workspaceFileName]
 o-tmux deving
 # 或者
 o-tmux deving.code-workspace
+# 支持绝对路径
+o-tmux /tmp/deving.code-workspace
 ```
 
 # Commands
