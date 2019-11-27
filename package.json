@@ -30,7 +30,12 @@
   ],
   "homepage": "https://github.com/songlairui/o-tmux",
   "keywords": [
-    "oclif"
+    "tmux",
+    "pane",
+    "osascript",
+    "oclif",
+    "workspace",
+    "vsc"
   ],
   "license": "MIT",
   "main": "lib/index.js",
