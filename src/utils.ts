@@ -1,5 +1,5 @@
 import { spawnSync } from "child_process";
-import { join } from "path";
+import { resolve, parse } from "path";
 import { readFileSync } from "fs";
 
 interface VSCWorkspace {
@@ -16,15 +16,18 @@ export const sessionExists = (sessionName: string) =>
     .split(/\n+/)
     .includes(sessionName);
 
-export const removeSuffix = function(str: string, _suffix = ".code-workspace") {
-  if (typeof str === "string" && str.endsWith(_suffix)) {
-    str = str.slice(0, str.length - _suffix.length);
+export const parseFilePath = function(
+  filePath: string,
+  _suffix = ".code-workspace"
+) {
+  const { dir, name, ext } = parse(filePath);
+  if (ext === _suffix) {
   }
-  return str;
+  return { dir, name, base: `${name}${_suffix}` };
 };
 
 export function openTmux(workspaceName?: string, force?: boolean) {
-  const sessionName = removeSuffix(workspaceName || "");
+  const { name: sessionName, dir, base } = parseFilePath(workspaceName || "");
   if (!sessionName) {
     console.info("NO workspaceName !");
     process.exit(0);
@@ -39,7 +42,7 @@ export function openTmux(workspaceName?: string, force?: boolean) {
     process.exit(0);
   }
 
-  const targetFile = join(process.cwd(), `${sessionName}.code-workspace`);
+  const targetFile = resolve(process.cwd(), dir, base);
 
   const { folders }: VSCWorkspace = JSON.parse(
     readFileSync(targetFile).toString() || JSON.stringify({ folders: [] })
