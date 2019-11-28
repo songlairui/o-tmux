@@ -8,21 +8,21 @@ class OTmux extends Command {
     // add --version flag to show CLI version
     version: flags.version({ char: "v" }),
     help: flags.help({ char: "h" }),
-    // flag with a value (-n, --name=VALUE)
-    name: flags.string({ char: "n", description: "workspace file" }),
     // flag with no value (-f, --force)
-    force: flags.boolean({ char: "f" })
+    force: flags.boolean({ char: "f" }),
+    // flag with no value (-n, --new)
+    new: flags.boolean({ char: "n" })
   };
 
   static args = [{ name: "file" }];
 
   async run() {
     const { args, flags } = this.parse(OTmux);
-    const target = flags.name || args.file;
+    const target = args.file;
 
     this.log(`target ${target} ${flags.force ? "[FORCE]" : ""}`);
 
-    openTmux(target, flags.force);
+    openTmux(target, flags.force, flags.new);
   }
 }
 

@@ -26,7 +26,11 @@ export const parseFilePath = function(
   return { dir, name, base: `${name}${_suffix}` };
 };
 
-export function openTmux(workspaceName?: string, force?: boolean) {
+export function openTmux(
+  workspaceName?: string,
+  force?: boolean,
+  _new?: boolean
+) {
   const { name: sessionName, dir, base } = parseFilePath(workspaceName || "");
   if (!sessionName) {
     console.info("NO workspaceName !");
@@ -35,7 +39,7 @@ export function openTmux(workspaceName?: string, force?: boolean) {
   if (force) {
     // 强行关闭 session
     spawnSync("tmux", ["kill-session", "-t", sessionName]);
-  } else if (sessionExists(sessionName)) {
+  } else if (!_new && sessionExists(sessionName)) {
     console.info(
       `Exit 0 : Session for ${sessionName} already existed. add -f force re-create`
     );
@@ -48,7 +52,11 @@ export function openTmux(workspaceName?: string, force?: boolean) {
     readFileSync(targetFile).toString() || JSON.stringify({ folders: [] })
   );
 
-  const shellCommand = `tmux new -s ${sessionName} \\\\; \
+  const tmuxCommand = _new
+    ? `tmux new \\\\;`
+    : `tmux new -s ${sessionName} \\\\;`;
+
+  const shellCommand = `${tmuxCommand} \
 ${folders
   .filter(folder => folder.path.startsWith("/"))
   .map(folder => `send-keys '${folder.path}' C-m \\\\; `)
