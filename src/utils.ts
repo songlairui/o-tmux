@@ -34,16 +34,15 @@ export function openTmux(
   const { name: sessionName, dir, base } = parseFilePath(workspaceName || "");
   if (!sessionName) {
     console.info("NO workspaceName !");
-    process.exit(0);
+    throw new Error("NO workspaceName !");
   }
   if (force) {
     // 强行关闭 session
     spawnSync("tmux", ["kill-session", "-t", sessionName]);
   } else if (!_new && sessionExists(sessionName)) {
-    console.info(
-      `Exit 0 : Session for ${sessionName} already existed. add -f force re-create`
-    );
-    process.exit(0);
+    const msg = `Exit 0 : Session for ${sessionName} already existed. add -f force re-create`;
+    console.info(msg);
+    throw new Error(msg);
   }
 
   const targetFile = resolve(process.cwd(), dir, base);
