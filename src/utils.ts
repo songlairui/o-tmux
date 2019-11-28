@@ -29,7 +29,7 @@ export const parseFilePath = function(
 export function openTmux(
   workspaceName?: string,
   force?: boolean,
-  _new?: boolean
+  _new?: string
 ) {
   const { name: sessionName, dir, base } = parseFilePath(workspaceName || "");
   if (!sessionName) {
@@ -51,9 +51,9 @@ export function openTmux(
     readFileSync(targetFile).toString() || JSON.stringify({ folders: [] })
   );
 
-  const tmuxCommand = _new
-    ? `tmux new \\\\;`
-    : `tmux new -s ${sessionName} \\\\;`;
+  const tmuxCommand = `tmux new -s ${
+    _new ? `${sessionName}__${_new}` : sessionName
+  } \\\\;`;
 
   const shellCommand = `${tmuxCommand} \
 ${folders

@@ -11,7 +11,7 @@ class OTmux extends Command {
     // flag with no value (-f, --force)
     force: flags.boolean({ char: "f" }),
     // flag with no value (-n, --new)
-    new: flags.boolean({ char: "n" })
+    new: flags.string({ char: "n" })
   };
 
   static args = [{ name: "file" }];
