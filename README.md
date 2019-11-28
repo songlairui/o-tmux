@@ -42,7 +42,7 @@ USAGE
 OPTIONS
   -f, --force
   -h, --help       show CLI help
-  -n, --name=name  workspace file
+  -n, --new        新建窗口
   -v, --version    show CLI version
 ```
 
