@@ -1,7 +1,7 @@
 {
   "name": "o-tmux",
   "description": "open vsc .code-workspace file's folder",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "author": "宋来瑞 @songlairui",
   "bin": {
     "o-tmux": "./bin/run"
