@@ -2,10 +2,11 @@ import { spawnSync } from "child_process";
 import { resolve, parse } from "path";
 import { readFileSync } from "fs";
 
+interface FolderMeta {
+  path: string;
+}
 interface VSCWorkspace {
-  folders: {
-    path: string;
-  }[];
+  folders: FolderMeta[];
   setting: any;
 }
 
@@ -26,20 +27,22 @@ export const parseFilePath = function(
   return { dir, name, base: `${name}${_suffix}` };
 };
 
-export function openTmux(
+export async function openTmux(
   workspaceName?: string,
   force?: boolean,
   _new?: string
 ) {
-  const { name: sessionName, dir, base } = parseFilePath(workspaceName || "");
-  if (!sessionName) {
+  const { name: _sessionName, dir, base } = parseFilePath(workspaceName || "");
+  const sessionName = _new ? `${_sessionName}__${_new}` : _sessionName;
+
+  if (!sessionName || !_sessionName) {
     console.info("NO workspaceName !");
     throw new Error("NO workspaceName !");
   }
   if (force) {
     // 强行关闭 session
     spawnSync("tmux", ["kill-session", "-t", sessionName]);
-  } else if (!_new && sessionExists(sessionName)) {
+  } else if (sessionExists(sessionName)) {
     const msg = `Exit 0 : Session for ${sessionName} already existed. add -f force re-create`;
     console.info(msg);
     throw new Error(msg);
@@ -50,10 +53,20 @@ export function openTmux(
   const { folders }: VSCWorkspace = JSON.parse(
     readFileSync(targetFile).toString() || JSON.stringify({ folders: [] })
   );
+  await createSession(sessionName);
+  await attachSessionThenSplitPaneWithFolders(sessionName, folders);
+}
 
-  const tmuxCommand = `tmux new -s ${
-    _new ? `${sessionName}__${_new}` : sessionName
-  } \\\\;`;
+export async function createSession(sessionName: string) {
+  const tmuxCommand = `new -s ${sessionName} -d`;
+  return spawnSync("tmux", tmuxCommand.split(/\s+/));
+}
+
+export async function attachSessionThenSplitPaneWithFolders(
+  sessionName: string,
+  folders: FolderMeta[]
+) {
+  const tmuxCommand = `tmux attach -t ${sessionName} \\\\;`;
 
   const shellCommand = `${tmuxCommand} \
 ${folders
@@ -69,7 +82,5 @@ tell application "Terminal"
 end tell\
 `;
 
-  // console.info("tellCommand", shellCommand);
-
-  spawnSync("osascript", ["-e", tellCommand]);
+  return spawnSync("osascript", ["-e", tellCommand]);
 }
